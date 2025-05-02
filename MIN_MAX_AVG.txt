@@ -1,0 +1,126 @@
+#include <iostream>
+#include <vector>
+#include <omp.h>
+#include <chrono>
+#include <climits>
+
+
+using namespace std;
+
+// Find Minimum
+void minimum(vector<int> &array) {
+    int min = INT_MAX;
+    auto start = chrono::high_resolution_clock::now();
+    for (auto i = array.begin(); i != array.end(); i++) {
+        if (*i < min) {
+            min = *i;
+        }
+    }
+    auto end = chrono::high_resolution_clock::now();
+    cout << "Minimum Element: " << min << endl;
+    cout << "Time Taken: " << chrono::duration_cast<chrono::microseconds>(end - start).count() << " microseconds\n";
+
+    int min_ele = INT_MAX;
+    start = chrono::high_resolution_clock::now();
+    #pragma omp parallel for reduction(min : min_ele)
+    for (int i = 0; i < array.size(); i++) {
+        if (array[i] < min_ele) {
+            min_ele = array[i];
+        }
+    }
+    end = chrono::high_resolution_clock::now();
+    cout << "Minimum Element (Parallel Reduction): " << min_ele << endl;
+    cout << "Time Taken: " << chrono::duration_cast<chrono::microseconds>(end - start).count() << " microseconds\n";
+}
+
+// Find Maximum
+void maximum(vector<int> &array) {
+    int max = INT_MIN;
+    auto start = chrono::high_resolution_clock::now();
+    for (auto i = array.begin(); i != array.end(); i++) {
+        if (*i > max) {
+            max = *i;
+        }
+    }
+    auto end = chrono::high_resolution_clock::now();
+    cout << "Maximum Element: " << max << endl;
+    cout << "Time Taken: " << chrono::duration_cast<chrono::microseconds>(end - start).count() << " microseconds\n";
+
+    int max_ele = INT_MIN;
+    start = chrono::high_resolution_clock::now();
+    #pragma omp parallel for reduction(max : max_ele)
+    for (int i = 0; i < array.size(); i++) {
+        if (array[i] > max_ele) {
+            max_ele = array[i];
+        }
+    }
+    end = chrono::high_resolution_clock::now();
+    cout << "Maximum Element (Parallel Reduction): " << max_ele << endl;
+    cout << "Time Taken: " << chrono::duration_cast<chrono::microseconds>(end - start).count() << " microseconds\n";
+}
+
+// Sum
+void sum(vector<int> &array) {
+    int sum = 0;
+    auto start = chrono::high_resolution_clock::now();
+    for (auto i = array.begin(); i != array.end(); i++) {
+        sum += *i;
+    }
+    auto end = chrono::high_resolution_clock::now();
+    cout << "Summation: " << sum << endl;
+    cout << "Time Taken: " << chrono::duration_cast<chrono::microseconds>(end - start).count() << " microseconds\n";
+
+    sum = 0;
+    start = chrono::high_resolution_clock::now();
+    #pragma omp parallel for reduction(+ : sum)
+    for (int i = 0; i < array.size(); i++) {
+        sum += array[i];
+    }
+    end = chrono::high_resolution_clock::now();
+    cout << "Summation (Parallel Reduction): " << sum << endl;
+    cout << "Time Taken: " << chrono::duration_cast<chrono::microseconds>(end - start).count() << " microseconds\n";
+}
+
+// Average
+void average(vector<int> &array) {
+    float avg = 0;
+    auto start = chrono::high_resolution_clock::now();
+    for (auto i = array.begin(); i != array.end(); i++) {
+        avg += *i;
+    }
+    auto end = chrono::high_resolution_clock::now();
+    cout << "Average: " << avg / array.size() << endl;
+    cout << "Time Taken: " << chrono::duration_cast<chrono::microseconds>(end - start).count() << " microseconds\n";
+
+    avg = 0;
+    start = chrono::high_resolution_clock::now();
+    #pragma omp parallel for reduction(+ : avg)
+    for (int i = 0; i < array.size(); i++) {
+        avg += array[i];
+    }
+    end = chrono::high_resolution_clock::now();
+    cout << "Average (Parallel Reduction): " << avg / array.size() << endl;
+    cout << "Time Taken: " << chrono::duration_cast<chrono::microseconds>(end - start).count() << " microseconds\n";
+}
+
+int main() {
+    cout << "Enter number of elements in array: ";
+    int N;
+    int MAX = 1000;
+    cin >> N;
+    vector<int> array;
+    for (int i = 0; i < N; i++) {
+        array.push_back(rand() % MAX);
+    }
+
+    minimum(array);
+    cout << endl;
+    maximum(array);
+    cout << endl;
+    sum(array);
+    cout << endl;
+    average(array);
+    cout << endl;
+
+    return 0;
+}
